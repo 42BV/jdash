@@ -1,5 +1,7 @@
 package io.jdash;
 
+import io.jdash.domain.MyBean;
+
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -62,6 +64,14 @@ public class StreamTest {
     @Test(expected = NullPointerException.class)
     public void testWrapperValueNull() {
         J.wrap("a", "b", "c").filter(value -> value == null).value();
+    }
+    
+    @Test
+    public void testPick() {
+        MyBean bean = new MyBean();
+        bean.setName("Henk");
+        
+        Assert.assertEquals("Henk", J.wrap(J.asList(bean)).pick("name").value());
     }
 
 }

@@ -43,10 +43,14 @@ public class J {
     // Beans
     //
     
-    public static Object get(Object bean, String propertyName) {
+    public static <V> Object get(Object bean, String propertyName) {
         return wrap(bean).get(propertyName);
     }
     
+    public static <V> Object get(Object bean, String propertyName, Class<V> valueType) {
+        return get(bean, propertyName);
+    }
+
     public static void set(Object bean, String propertyName, Object value) {
         wrap(bean).set(propertyName, value);
     }
@@ -122,6 +126,15 @@ public class J {
         return find(stream, value -> value != null).orElseThrow(() -> new NullPointerException("Expected atleast one not null value."));
     }
 
+    public static <T> int count(Iterable<T> values, Predicate<T> predicate) {
+        Stream<T> stream = stream(values);
+        return count(stream, predicate);
+    }
+    
+    public static <T> int count(Stream<T> stream, Predicate<T> predicate) {
+        return wrap(stream).filter(predicate).size();
+    }
+
     //
     // Collections
     //
@@ -144,6 +157,15 @@ public class J {
 
     public static <T> Collection<T> emptyCollection() {
         return Collections.emptyList();
+    }
+    
+    public static String join(Iterable<?> values, String separator) {
+        List<?> collection = asList(values);
+        return StringUtils.collectionToDelimitedString(collection, separator);
+    }
+    
+    public static String join(Iterable<?> values) {
+        return join(values, ", ");
     }
 
 }

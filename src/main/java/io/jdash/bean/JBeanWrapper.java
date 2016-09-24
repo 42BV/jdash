@@ -3,6 +3,7 @@ package io.jdash.bean;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 
+@SuppressWarnings("unchecked")
 public class JBeanWrapper<T> {
     
     private final BeanWrapper wrapper;
@@ -11,10 +12,14 @@ public class JBeanWrapper<T> {
         this.wrapper = new BeanWrapperImpl(bean);
     }
     
-    public Object get(String propertyName) {
-        return wrapper.getPropertyValue(propertyName);
+    public <V> Object get(String propertyName) {
+        return (V) wrapper.getPropertyValue(propertyName);
     }
     
+    public <V> Object get(String propertyName, Class<V> valueType) {
+        return get(propertyName);
+    }
+
     public JBeanWrapper<T> set(String propertyName, Object value) {
         wrapper.setPropertyValue(propertyName, value);
         return this;
