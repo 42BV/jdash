@@ -1,7 +1,6 @@
-package io.jdash.stream;
+package io.jdash;
 
-import io.jdash.J;
-
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -11,7 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @SuppressWarnings("unchecked")
-public class JStreamWrapper<T> {
+public class JStreamWrapper<T> implements Iterable<T> {
     
     private Stream<T> stream;
     
@@ -46,7 +45,15 @@ public class JStreamWrapper<T> {
     }
     
     public int size() {
-        return stream.collect(Collectors.toList()).size();
+        return asList().size();
+    }
+    
+    public boolean isEmpty() {
+        return asList().isEmpty();
+    }
+    
+    public Iterator<T> iterator() {
+        return asList().iterator();
     }
 
     public List<T> asList() {

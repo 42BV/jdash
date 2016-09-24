@@ -1,8 +1,5 @@
 package io.jdash;
 
-import io.jdash.bean.JBeanWrapper;
-import io.jdash.stream.JStreamWrapper;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -11,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.springframework.beans.BeanUtils;
@@ -59,7 +57,7 @@ public class J {
         return BeanUtils.instantiateClass(beanClass);
     }
 
-    public static <T> JBeanWrapper<T> wrap(Class<T> beanClass) {
+    public static <T> JBeanWrapper<T> bean(Class<T> beanClass) {
         T bean = instantiate(beanClass);
         return wrap(bean);
     }
@@ -72,25 +70,25 @@ public class J {
     // Streams and collections
     //
 
-    public static <T> JStreamWrapper<T> wrap(Stream<T> stream) {
-        return new JStreamWrapper<>(stream);
-    }
-    
-    public static <T> JStreamWrapper<T> wrap(Iterable<T> values) {
-        Stream<T> stream = stream(values);
+    public static <T> JStreamWrapper<T> stream(Iterable<T> values) {
+        Stream<T> stream = asStream(values);
         return wrap(stream);
     }
     
-    public static <T> JStreamWrapper<T> wrap(T... values) {
-        Stream<T> stream = stream(values);
+    public static <T> JStreamWrapper<T> stream(T... values) {
+        Stream<T> stream = asStream(values);
         return wrap(stream);
     }
 
-    public static <T> Stream<T> stream(T... values) {
+    public static <T> JStreamWrapper<T> wrap(Stream<T> stream) {
+        return new JStreamWrapper<>(stream);
+    }
+
+    public static <T> Stream<T> asStream(T... values) {
         return asList(values).stream();
     }
     
-    public static <T> Stream<T> stream(Iterable<T> values) {
+    public static <T> Stream<T> asStream(Iterable<T> values) {
         return asList(values).stream();
     }
 
@@ -99,7 +97,7 @@ public class J {
     }
     
     public static <T> Optional<T> find(Iterable<T> values, Predicate<T> filter) {
-        Stream<T> stream = stream(values);
+        Stream<T> stream = asStream(values);
         return find(stream, filter);
     }
 
@@ -108,17 +106,17 @@ public class J {
     }
     
     public static <T> T first(Iterable<T> values, Predicate<T> filter) {
-        Stream<T> stream = stream(values);
+        Stream<T> stream = asStream(values);
         return first(stream, filter);
     }
 
     public static <T> T firstNotNull(T... values) {
-        Stream<T> stream = stream(values);
+        Stream<T> stream = asStream(values);
         return firstNotNull(stream);
     }
     
     public static <T> T firstNotNull(Iterable<T> values) {
-        Stream<T> stream = stream(values);
+        Stream<T> stream = asStream(values);
         return firstNotNull(stream);
     }
     
@@ -127,7 +125,7 @@ public class J {
     }
 
     public static <T> int count(Iterable<T> values, Predicate<T> predicate) {
-        Stream<T> stream = stream(values);
+        Stream<T> stream = asStream(values);
         return count(stream, predicate);
     }
     
@@ -166,6 +164,27 @@ public class J {
     
     public static String join(Iterable<?> values) {
         return join(values, ", ");
+    }
+    
+    public static int findIndex(Iterable<?> values, Object value) {
+        List<?> collection = asList(values);
+        return collection.indexOf(value);
+    }
+
+    // Preconditions
+    
+    public static void check(boolean expectation, Supplier<? extends RuntimeException> supplier) {
+        if (!expectation) {
+            throw supplier.get();
+        }
+    }
+    
+    public static void checkState(boolean expectation, String message) {
+        check(expectation, () -> new IllegalStateException(message));
+    }
+
+    public static void checkNotNull(Object value, String message) {
+        check(value != null, () -> new NullPointerException(message));
     }
 
 }

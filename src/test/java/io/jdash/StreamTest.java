@@ -42,28 +42,28 @@ public class StreamTest {
     @Test
     public void testWrapAsList() {
         List<String> list = J.asList("a", "b", "c");
-        Assert.assertEquals(list, J.wrap(list).asList());
+        Assert.assertEquals(list, J.stream(list).asList());
     }
     
     @Test
     public void testWrapAsSet() {
         Set<String> set = J.asSet("a", "b", "c");
-        Assert.assertEquals(set, J.wrap(set).asSet());
+        Assert.assertEquals(set, J.stream(set).asSet());
     }
     
     @Test
     public void testWrapperFirst() {
-        Assert.assertEquals("a", J.wrap("a", "b", "c").first().orElse(null));
+        Assert.assertEquals("a", J.stream("a", "b", "c").first().orElse(null));
     }
     
     @Test
     public void testWrapperValue() {
-        Assert.assertEquals("a", J.wrap("a", "b", "c").value());
+        Assert.assertEquals("a", J.stream("a", "b", "c").value());
     }
     
     @Test(expected = NullPointerException.class)
     public void testWrapperValueNull() {
-        J.wrap("a", "b", "c").filter(value -> value == null).value();
+        J.stream("a", "b", "c").filter(value -> value == null).value();
     }
     
     @Test
@@ -71,7 +71,7 @@ public class StreamTest {
         MyBean bean = new MyBean();
         bean.setName("Henk");
         
-        Assert.assertEquals("Henk", J.wrap(J.asList(bean)).pick("name").value());
+        Assert.assertEquals("Henk", J.stream(J.asList(bean)).pick("name").value());
     }
 
 }

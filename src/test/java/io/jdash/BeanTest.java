@@ -36,7 +36,7 @@ public class BeanTest {
     
     @Test
     public void testWrapByClass() {
-        MyBean bean = J.wrap(MyBean.class).value();
+        MyBean bean = J.bean(MyBean.class).instance();
         Assert.assertNotNull(bean);
         Assert.assertTrue(bean instanceof MyBean);
     }
@@ -44,13 +44,13 @@ public class BeanTest {
     @Test
     public void testWrapByInstance() {
         MyBean bean = new MyBean();
-        MyBean result = J.wrap(bean).value();
+        MyBean result = J.wrap(bean).instance();
         Assert.assertEquals(bean, result);
     }
 
     @Test
     public void testWrapSetGet() {
-        Assert.assertEquals("Henk", J.wrap(MyBean.class).set("name", "Henk").get("name"));
+        Assert.assertEquals("Henk", J.bean(MyBean.class).set("name", "Henk").get("name"));
     }
 
 }

@@ -1,4 +1,4 @@
-package io.jdash.bean;
+package io.jdash;
 
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
@@ -26,7 +26,7 @@ public class JBeanWrapper<T> {
     }
     
     @SuppressWarnings("unchecked")
-    public T value() {
+    public T instance() {
         return (T) wrapper.getWrappedInstance();
     }
 
