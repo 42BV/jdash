@@ -1,5 +1,7 @@
 package io.jdash;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -7,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -157,6 +160,21 @@ public class J {
         return Collections.emptyList();
     }
     
+    public static <T> void each(Iterable<T> values, Consumer<T> consumer) {
+        stream(values).forEach(consumer);
+    }
+    
+    public static int findIndex(Iterable<?> values, Object value) {
+        List<?> collection = asList(values);
+        return collection.indexOf(value);
+    }
+    
+    public static <T> Collection<T> without(Iterable<T> values, T... exclusions) {
+        List<T> result = asList(values);
+        each(asList(exclusions), exclusion -> result.remove(exclusion));
+        return result;
+    }
+    
     public static String join(Iterable<?> values, String separator) {
         List<?> collection = asList(values);
         return StringUtils.collectionToDelimitedString(collection, separator);
@@ -166,12 +184,48 @@ public class J {
         return join(values, ", ");
     }
     
-    public static int findIndex(Iterable<?> values, Object value) {
-        List<?> collection = asList(values);
-        return collection.indexOf(value);
+    //
+    // Dates
+    //
+
+    public static LocalDate today() {
+        return LocalDate.now();
+    }
+    
+    public static LocalDateTime now() {
+        return LocalDateTime.now();
+    }
+    
+    //
+    // Strings
+    //
+    
+    public static String defaultString(String value, String defaultValue) {
+        if (isEmpty(value)) {
+            value = defaultValue;
+        }
+        return value;
+    }
+    
+    public static String defaultString(String value) {
+        return defaultString(value, "");
+    }
+    
+    public static String trim(String value) {
+        return defaultString(value, "").trim();
+    }
+    
+    public static String lowerCase(String value) {
+        return defaultString(value, "").toLowerCase();
+    }
+    
+    public static String upperCase(String value) {
+        return defaultString(value, "").toUpperCase();
     }
 
+    //
     // Preconditions
+    //
     
     public static void check(boolean expectation, Supplier<? extends RuntimeException> supplier) {
         if (!expectation) {
