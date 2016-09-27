@@ -71,7 +71,7 @@ public class StreamTest {
         MyBean bean = new MyBean();
         bean.setName("Henk");
         
-        Assert.assertEquals("Henk", J.stream(J.asList(bean)).pick("name").value());
+        Assert.assertEquals("Henk", J.stream(bean).pick("name", String.class).value());
     }
 
 }

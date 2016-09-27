@@ -35,6 +35,10 @@ public class JStreamWrapper<T> implements Iterable<T> {
     public <V> JStreamWrapper<V> pick(String propertyName) {
         return map(bean -> (V) J.get(bean, propertyName));
     }
+    
+    public <V> JStreamWrapper<V> pick(String propertyName, Class<V> propertyType) {
+        return this.pick(propertyName);
+    }
 
     public Optional<T> first() {
         return stream.findFirst();
