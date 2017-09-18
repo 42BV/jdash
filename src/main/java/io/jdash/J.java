@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -20,6 +21,9 @@ import org.springframework.util.StringUtils;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
+/**
+ * Java dash, optimizes often used java functionality.
+ */
 @SuppressWarnings("unchecked")
 public class J {
 
@@ -95,6 +99,8 @@ public class J {
         return asList(values).stream();
     }
 
+    // Filtering
+
     public static <T> Optional<T> find(Stream<T> stream, Predicate<T> filter) {
         return wrap(stream).filter(filter).first();
     }
@@ -108,9 +114,18 @@ public class J {
         return wrap(stream).filter(filter).value();
     }
     
+    public static <T> T first(Stream<T> stream, Predicate<T> filter, T defaultValue) {
+        return wrap(stream).filter(filter).value(defaultValue);
+    }
+    
     public static <T> T first(Iterable<T> values, Predicate<T> filter) {
         Stream<T> stream = asStream(values);
         return first(stream, filter);
+    }
+    
+    public static <T> T first(Iterable<T> values, Predicate<T> filter, T defaultValue) {
+        Stream<T> stream = asStream(values);
+        return first(stream, filter, defaultValue);
     }
 
     public static <T> T firstNotNull(T... values) {
@@ -134,6 +149,35 @@ public class J {
     
     public static <T> int count(Stream<T> stream, Predicate<T> predicate) {
         return wrap(stream).filter(predicate).size();
+    }
+    
+    public static <T> boolean all(Iterable<T> values, Predicate<T> predicate) {
+        Stream<T> stream = asStream(values);
+        return stream.allMatch(predicate);
+    }
+    
+    public static <T> boolean any(Iterable<T> values, Predicate<T> predicate) {
+        Stream<T> stream = asStream(values);
+        return stream.anyMatch(predicate);
+    }
+    
+    public static <T> boolean none(Iterable<T> values, Predicate<T> predicate) {
+        Stream<T> stream = asStream(values);
+        return stream.noneMatch(predicate);
+    }
+
+    // Mapping
+    
+    public static <T, V> List<V> map(Collection<T> values, Function<T, V> function) {
+        return mapStream(values, function).asList();
+    }
+    
+    public static <T, V> Set<V> mapUnique(Collection<T> values, Function<T, V> function) {
+        return mapStream(values, function).asSet();
+    }
+    
+    public static <T, V> JStreamWrapper<V> mapStream(Collection<T> values, Function<T, V> function) {
+        return stream(values).map(function);
     }
 
     //
