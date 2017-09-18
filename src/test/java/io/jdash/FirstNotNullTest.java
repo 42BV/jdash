@@ -9,18 +9,18 @@ public class FirstNotNullTest {
 
     @Test
     public void testFirstNotNullVarArg() {
-        Assert.assertEquals("a", J.firstNotNull(null, "a", "b", null, "c"));
+        Assert.assertEquals("a", J.findNotNull(null, "a", "b", null, "c"));
     }
     
     @Test
     public void testFirstNotNullIterable() {
         List<String> values = J.asList(null, "a", "b", null, "c");
-        Assert.assertEquals("a", J.firstNotNull(values));
+        Assert.assertEquals("a", J.findNotNull(values));
     }
 
     @Test(expected = NullPointerException.class)
     public void testFirstNotNullNone() {
-        J.firstNotNull(null, null, null);
+        J.findNotNull(null, null, null);
     }
 
 }

@@ -100,46 +100,54 @@ public class J {
     }
 
     // Filtering
-
-    public static <T> Optional<T> find(Stream<T> stream, Predicate<T> filter) {
-        return wrap(stream).filter(filter).first();
+    
+    public static <T> T first(Iterable<T> values) {
+        return stream(values).value();
     }
     
-    public static <T> Optional<T> find(Iterable<T> values, Predicate<T> filter) {
-        Stream<T> stream = asStream(values);
-        return find(stream, filter);
+    public static <T> T first(Iterable<T> values, T defaultValue) {
+        return stream(values).value(defaultValue);
     }
 
-    public static <T> T first(Stream<T> stream, Predicate<T> filter) {
+    public static <T> Optional<T> findOptional(Stream<T> stream, Predicate<T> filter) {
+        return wrap(stream).filter(filter).find();
+    }
+    
+    public static <T> Optional<T> findOptional(Iterable<T> values, Predicate<T> filter) {
+        Stream<T> stream = asStream(values);
+        return findOptional(stream, filter);
+    }
+
+    public static <T> T find(Stream<T> stream, Predicate<T> filter) {
         return wrap(stream).filter(filter).value();
     }
     
-    public static <T> T first(Stream<T> stream, Predicate<T> filter, T defaultValue) {
+    public static <T> T find(Stream<T> stream, Predicate<T> filter, T defaultValue) {
         return wrap(stream).filter(filter).value(defaultValue);
     }
     
-    public static <T> T first(Iterable<T> values, Predicate<T> filter) {
+    public static <T> T find(Iterable<T> values, Predicate<T> filter) {
         Stream<T> stream = asStream(values);
-        return first(stream, filter);
+        return find(stream, filter);
     }
     
-    public static <T> T first(Iterable<T> values, Predicate<T> filter, T defaultValue) {
+    public static <T> T find(Iterable<T> values, Predicate<T> filter, T defaultValue) {
         Stream<T> stream = asStream(values);
-        return first(stream, filter, defaultValue);
+        return find(stream, filter, defaultValue);
     }
 
-    public static <T> T firstNotNull(T... values) {
+    public static <T> T findNotNull(T... values) {
         Stream<T> stream = asStream(values);
-        return firstNotNull(stream);
+        return findNotNull(stream);
     }
     
-    public static <T> T firstNotNull(Iterable<T> values) {
+    public static <T> T findNotNull(Iterable<T> values) {
         Stream<T> stream = asStream(values);
-        return firstNotNull(stream);
+        return findNotNull(stream);
     }
     
-    public static <T> T firstNotNull(Stream<T> stream) {
-        return find(stream, value -> value != null).orElseThrow(() -> new NullPointerException("Expected atleast one not null value."));
+    public static <T> T findNotNull(Stream<T> stream) {
+        return findOptional(stream, value -> value != null).orElseThrow(() -> new NullPointerException("Expected atleast one not null value."));
     }
 
     public static <T> int count(Iterable<T> values, Predicate<T> predicate) {
