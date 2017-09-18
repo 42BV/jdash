@@ -48,6 +48,10 @@ public class JStreamWrapper<T> implements Iterable<T> {
         return first().orElseThrow(() -> new NullPointerException("Expected atleast one value."));
     }
     
+    public T value(T defaultValue) {
+        return first().orElse(defaultValue);
+    }
+
     public int size() {
         return asList().size();
     }
