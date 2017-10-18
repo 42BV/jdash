@@ -281,6 +281,19 @@ public class J {
         return LocalDateTime.now();
     }
     
+    /**
+     * Check if a date is valid between a nullable start and end date.
+     * @param referenceDate the reference date, being checked on
+     * @param startDate the start date of the range
+     * @param endDate the end date of the range
+     * @return True if both start and end date are null<br>
+     *         True if referenceDate is before end date and after start date. If one of these is null, it will not be considered.
+     */
+    public static boolean between(LocalDate referenceDate, LocalDate startDate, LocalDate endDate) {
+        return (startDate == null || referenceDate.isAfter(startDate) || referenceDate.isEqual(startDate)) && 
+               (endDate == null || referenceDate.isBefore(endDate) || referenceDate.isEqual(endDate));
+    }
+
     //
     // Strings
     //
