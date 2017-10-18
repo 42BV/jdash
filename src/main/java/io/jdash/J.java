@@ -318,6 +318,10 @@ public class J {
         }
     }
     
+    public static void checkArgument(boolean expectation, String message) {
+        check(expectation, () -> new IllegalArgumentException(message));
+    }
+
     public static void checkState(boolean expectation, String message) {
         check(expectation, () -> new IllegalStateException(message));
     }

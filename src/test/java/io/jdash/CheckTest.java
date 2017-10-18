@@ -15,6 +15,16 @@ public class CheckTest {
     }
 
     @Test
+    public void testCheckArgument() {
+        J.checkArgument("value" != null, "Value should not be null");
+    }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void testArgumentFail() {
+        J.checkArgument("value" == null, "Value should be null");
+    }
+    
+    @Test
     public void testCheckState() {
         J.checkState("value" != null, "Value should not be null");
     }
