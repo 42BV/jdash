@@ -13,6 +13,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.beans.BeanUtils;
@@ -156,7 +157,7 @@ public class J {
     }
     
     public static <T> int count(Stream<T> stream, Predicate<T> predicate) {
-        return wrap(stream).filter(predicate).size();
+        return filter(stream, predicate).size();
     }
     
     public static <T> boolean all(Iterable<T> values, Predicate<T> predicate) {
@@ -174,18 +175,50 @@ public class J {
         return stream.noneMatch(predicate);
     }
 
+    public static <T> List<T> filter(Iterable<T> values, Predicate<T> predicate) {
+        Stream<T> stream = asStream(values);
+        return filter(stream, predicate);
+    }
+    
+    public static <T> List<T> filter(Stream<T> stream, Predicate<T> predicate) {
+        return stream.filter(predicate).collect(Collectors.toList());
+    }
+
+    public static <T> List<T> without(Iterable<T> values, Predicate<T> predicate) {
+        Stream<T> stream = asStream(values);
+        return without(stream, predicate);
+    }
+    
+    public static <T> List<T> without(Stream<T> stream, Predicate<T> predicate) {
+        return filter(stream, inverse(predicate));
+    }
+    
+    public static <T> Predicate<T> inverse(Predicate<T> predicate) {
+        return (x) -> !predicate.test(x);
+    }
+
     // Mapping
     
-    public static <T, V> List<V> map(Collection<T> values, Function<T, V> function) {
+    public static <T, V> List<V> map(Iterable<T> values, Function<T, V> function) {
         return mapStream(values, function).asList();
     }
     
-    public static <T, V> Set<V> mapUnique(Collection<T> values, Function<T, V> function) {
+    public static <T, V> Set<V> mapUnique(Iterable<T> values, Function<T, V> function) {
         return mapStream(values, function).asSet();
     }
     
-    public static <T, V> JStreamWrapper<V> mapStream(Collection<T> values, Function<T, V> function) {
+    public static <T, V> JStreamWrapper<V> mapStream(Iterable<T> values, Function<T, V> function) {
         return stream(values).map(function);
+    }
+
+    // Sorting
+    
+    public static <T> List<T> sort(Iterable<T> values) {
+        return stream(values).sort().asList();
+    }
+
+    public static <T, V extends Comparable<? super V>> List<T> sort(Iterable<T> values, Function<T, V> function) {
+        return stream(values).sort(function).asList();
     }
 
     //
