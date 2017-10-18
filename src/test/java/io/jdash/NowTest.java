@@ -3,7 +3,7 @@ package io.jdash;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class DateTest {
+public class NowTest {
     
     @Test
     public void testToday() {

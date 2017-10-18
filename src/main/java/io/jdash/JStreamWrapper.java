@@ -1,5 +1,6 @@
 package io.jdash;
 
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +23,16 @@ public class JStreamWrapper<T> implements Iterable<T> {
         return stream;
     }
     
+    public <V extends Comparable<? super V>> JStreamWrapper<T> sort() {
+        stream = stream.sorted();
+        return this;
+    }
+
+    public <V extends Comparable<? super V>> JStreamWrapper<T> sort(Function<T, V> function) {
+        stream = stream.sorted(Comparator.comparing(function, Comparator.nullsFirst(Comparator.naturalOrder())));
+        return this;
+    }
+
     public JStreamWrapper<T> filter(Predicate<T> predicate) {
         stream = stream.filter(predicate);
         return this;
@@ -40,16 +51,16 @@ public class JStreamWrapper<T> implements Iterable<T> {
         return this.pick(propertyName);
     }
 
-    public Optional<T> first() {
+    public Optional<T> find() {
         return stream.findFirst();
     }
     
     public T value() {
-        return first().orElseThrow(() -> new NullPointerException("Expected atleast one value."));
+        return find().orElseThrow(() -> new NullPointerException("Expected atleast one value."));
     }
     
     public T value(T defaultValue) {
-        return first().orElse(defaultValue);
+        return find().orElse(defaultValue);
     }
 
     public int size() {

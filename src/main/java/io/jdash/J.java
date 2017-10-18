@@ -13,6 +13,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.beans.BeanUtils;
@@ -100,46 +101,54 @@ public class J {
     }
 
     // Filtering
-
-    public static <T> Optional<T> find(Stream<T> stream, Predicate<T> filter) {
-        return wrap(stream).filter(filter).first();
+    
+    public static <T> T first(Iterable<T> values) {
+        return stream(values).value();
     }
     
-    public static <T> Optional<T> find(Iterable<T> values, Predicate<T> filter) {
-        Stream<T> stream = asStream(values);
-        return find(stream, filter);
+    public static <T> T first(Iterable<T> values, T defaultValue) {
+        return stream(values).value(defaultValue);
     }
 
-    public static <T> T first(Stream<T> stream, Predicate<T> filter) {
+    public static <T> Optional<T> findOptional(Stream<T> stream, Predicate<T> filter) {
+        return wrap(stream).filter(filter).find();
+    }
+    
+    public static <T> Optional<T> findOptional(Iterable<T> values, Predicate<T> filter) {
+        Stream<T> stream = asStream(values);
+        return findOptional(stream, filter);
+    }
+
+    public static <T> T find(Stream<T> stream, Predicate<T> filter) {
         return wrap(stream).filter(filter).value();
     }
     
-    public static <T> T first(Stream<T> stream, Predicate<T> filter, T defaultValue) {
+    public static <T> T find(Stream<T> stream, Predicate<T> filter, T defaultValue) {
         return wrap(stream).filter(filter).value(defaultValue);
     }
     
-    public static <T> T first(Iterable<T> values, Predicate<T> filter) {
+    public static <T> T find(Iterable<T> values, Predicate<T> filter) {
         Stream<T> stream = asStream(values);
-        return first(stream, filter);
+        return find(stream, filter);
     }
     
-    public static <T> T first(Iterable<T> values, Predicate<T> filter, T defaultValue) {
+    public static <T> T find(Iterable<T> values, Predicate<T> filter, T defaultValue) {
         Stream<T> stream = asStream(values);
-        return first(stream, filter, defaultValue);
+        return find(stream, filter, defaultValue);
     }
 
-    public static <T> T firstNotNull(T... values) {
+    public static <T> T findNotNull(T... values) {
         Stream<T> stream = asStream(values);
-        return firstNotNull(stream);
+        return findNotNull(stream);
     }
     
-    public static <T> T firstNotNull(Iterable<T> values) {
+    public static <T> T findNotNull(Iterable<T> values) {
         Stream<T> stream = asStream(values);
-        return firstNotNull(stream);
+        return findNotNull(stream);
     }
     
-    public static <T> T firstNotNull(Stream<T> stream) {
-        return find(stream, value -> value != null).orElseThrow(() -> new NullPointerException("Expected atleast one not null value."));
+    public static <T> T findNotNull(Stream<T> stream) {
+        return findOptional(stream, value -> value != null).orElseThrow(() -> new NullPointerException("Expected atleast one not null value."));
     }
 
     public static <T> int count(Iterable<T> values, Predicate<T> predicate) {
@@ -148,7 +157,7 @@ public class J {
     }
     
     public static <T> int count(Stream<T> stream, Predicate<T> predicate) {
-        return wrap(stream).filter(predicate).size();
+        return filter(stream, predicate).size();
     }
     
     public static <T> boolean all(Iterable<T> values, Predicate<T> predicate) {
@@ -166,18 +175,50 @@ public class J {
         return stream.noneMatch(predicate);
     }
 
+    public static <T> List<T> filter(Iterable<T> values, Predicate<T> predicate) {
+        Stream<T> stream = asStream(values);
+        return filter(stream, predicate);
+    }
+    
+    public static <T> List<T> filter(Stream<T> stream, Predicate<T> predicate) {
+        return stream.filter(predicate).collect(Collectors.toList());
+    }
+
+    public static <T> List<T> without(Iterable<T> values, Predicate<T> predicate) {
+        Stream<T> stream = asStream(values);
+        return without(stream, predicate);
+    }
+    
+    public static <T> List<T> without(Stream<T> stream, Predicate<T> predicate) {
+        return filter(stream, inverse(predicate));
+    }
+    
+    public static <T> Predicate<T> inverse(Predicate<T> predicate) {
+        return (x) -> !predicate.test(x);
+    }
+
     // Mapping
     
-    public static <T, V> List<V> map(Collection<T> values, Function<T, V> function) {
+    public static <T, V> List<V> map(Iterable<T> values, Function<T, V> function) {
         return mapStream(values, function).asList();
     }
     
-    public static <T, V> Set<V> mapUnique(Collection<T> values, Function<T, V> function) {
+    public static <T, V> Set<V> mapUnique(Iterable<T> values, Function<T, V> function) {
         return mapStream(values, function).asSet();
     }
     
-    public static <T, V> JStreamWrapper<V> mapStream(Collection<T> values, Function<T, V> function) {
+    public static <T, V> JStreamWrapper<V> mapStream(Iterable<T> values, Function<T, V> function) {
         return stream(values).map(function);
+    }
+
+    // Sorting
+    
+    public static <T> List<T> sort(Iterable<T> values) {
+        return stream(values).sort().asList();
+    }
+
+    public static <T, V extends Comparable<? super V>> List<T> sort(Iterable<T> values, Function<T, V> function) {
+        return stream(values).sort(function).asList();
     }
 
     //
@@ -240,6 +281,19 @@ public class J {
         return LocalDateTime.now();
     }
     
+    /**
+     * Check if a date is valid between a nullable start and end date.
+     * @param referenceDate the reference date, being checked on
+     * @param startDate the start date of the range
+     * @param endDate the end date of the range
+     * @return True if both start and end date are null<br>
+     *         True if referenceDate is before end date and after start date. If one of these is null, it will not be considered.
+     */
+    public static boolean between(LocalDate referenceDate, LocalDate startDate, LocalDate endDate) {
+        return (startDate == null || referenceDate.isAfter(startDate) || referenceDate.isEqual(startDate)) && 
+               (endDate == null || referenceDate.isBefore(endDate) || referenceDate.isEqual(endDate));
+    }
+
     //
     // Strings
     //
@@ -277,6 +331,10 @@ public class J {
         }
     }
     
+    public static void checkArgument(boolean expectation, String message) {
+        check(expectation, () -> new IllegalArgumentException(message));
+    }
+
     public static void checkState(boolean expectation, String message) {
         check(expectation, () -> new IllegalStateException(message));
     }

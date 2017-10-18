@@ -14,19 +14,19 @@ public class StreamTest {
     @Test
     public void testFirst() {
         List<String> values = J.asList("a", "b", "c");
-        Assert.assertEquals("a", J.first(values, value -> value != null));
+        Assert.assertEquals("a", J.find(values, value -> value != null));
     }
     
     @Test
     public void testFind() {
         List<String> values = J.asList("a", "b", "c");
-        Assert.assertEquals("a", J.find(values, value -> value != null).get());
+        Assert.assertEquals("a", J.findOptional(values, value -> value != null).get());
     }
     
     @Test
     public void testFindNone() {
         List<String> values = J.asList("a", "b", "c");
-        Assert.assertFalse(J.find(values, value -> value == null).isPresent());
+        Assert.assertFalse(J.findOptional(values, value -> value == null).isPresent());
     }
 
     //
@@ -53,7 +53,7 @@ public class StreamTest {
     
     @Test
     public void testWrapperFirst() {
-        Assert.assertEquals("a", J.stream("a", "b", "c").first().orElse(null));
+        Assert.assertEquals("a", J.stream("a", "b", "c").find().orElse(null));
     }
     
     @Test
