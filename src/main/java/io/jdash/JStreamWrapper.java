@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -37,6 +38,23 @@ public class JStreamWrapper<T> implements Iterable<T> {
         stream = stream.filter(predicate);
         return this;
     }
+
+    /**
+     * Filters the stream using a predicate function, and then runs a function on the filtered result set.
+     * @param predicate Filter expression
+     * @param processor Function to run *after* the results have been filtered
+     * @return Stream containing the filtered results (new instance)
+     */
+    public JStreamWrapper<T> filterAndDo(Predicate<T> predicate, Consumer<List<T>> processor) {
+        List<T> filteredResults = stream.filter(predicate).collect(Collectors.toList());
+
+        if (processor != null) {
+            processor.accept(filteredResults);
+        }
+
+        stream = filteredResults.stream();
+        return this;
+    }
     
     public <V> JStreamWrapper<V> map(Function<T, V> mapper) {
         Stream<V> result = stream.map(mapper);
@@ -56,7 +74,7 @@ public class JStreamWrapper<T> implements Iterable<T> {
     }
     
     public T value() {
-        return find().orElseThrow(() -> new NullPointerException("Expected atleast one value."));
+        return find().orElseThrow(() -> new NullPointerException("Expected at least one value."));
     }
     
     public T value(T defaultValue) {
