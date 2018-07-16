@@ -2,8 +2,10 @@ package io.jdash;
 
 import io.jdash.domain.MyBean;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.junit.Assert;
@@ -72,6 +74,35 @@ public class StreamTest {
         bean.setName("Henk");
         
         Assert.assertEquals("Henk", J.stream(bean).pick("name", String.class).value());
+    }
+
+    @Test
+    public void testFilterAndDo() {
+        MyBean myBean = new MyBean();
+        myBean.setName("Jan");
+
+        Consumer<List<MyBean>> updateNameToLastValueInStream = (beans) -> myBean.setName(beans.get(beans.size() - 1).getName());
+
+        List<MyBean> beans = new ArrayList<MyBean>() {{
+            add(new MyBean() {{
+                setName("Dirk");
+            }});
+
+            add(new MyBean() {{
+                setName("Pappie");
+            }});
+
+            add(new MyBean() {{
+                setName("Ankie");
+            }});
+        }};
+
+        List<MyBean> filtered = J.stream(beans).filterAndDo((bean) -> !bean.getName().equals("Pappie"), updateNameToLastValueInStream).asList();
+        Assert.assertEquals(2, filtered.size());
+        Assert.assertEquals("Dirk", filtered.get(0).getName());
+        Assert.assertEquals("Ankie", filtered.get(1).getName());
+
+        Assert.assertEquals("Ankie", myBean.getName());
     }
 
 }
