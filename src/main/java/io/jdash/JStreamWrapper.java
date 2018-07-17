@@ -52,8 +52,29 @@ public class JStreamWrapper<T> implements Iterable<T> {
             processor.accept(filteredResults);
         }
 
-        stream = filteredResults.stream();
-        return this;
+        // If the filtered results are empty, return a version of JStreamWrapper which does not call the filter predicate and processor function again.
+        // Otherwise, the processor function would get called for every chained call to filterAndDo even though there are already no results.
+        if (filteredResults.isEmpty()) {
+            return new NoopJStreamWrapper<>(filteredResults.stream());
+        } else {
+            stream = filteredResults.stream();
+            return this;
+        }
+    }
+
+    /**
+     * No-op instance of JStreamWrapper which returns itself when filterAndDo() gets called.
+     * @param <S> Type of object within the wrapped stream.
+     */
+    private class NoopJStreamWrapper<S> extends JStreamWrapper<S> {
+
+        public NoopJStreamWrapper(Stream stream) {
+            super(stream);
+        }
+
+        public JStreamWrapper<S> filterAndDo(Predicate<S> predicate, Consumer<List<S>> processor) {
+            return this;
+        }
     }
     
     public <V> JStreamWrapper<V> map(Function<T, V> mapper) {
